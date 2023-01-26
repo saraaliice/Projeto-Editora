@@ -1,0 +1,183 @@
+--Criar Tabela TBEstado
+CREATE TABLE TBEstado 
+(
+	IDUF	        varchar(2)   NOT NULL,
+	NomeEstado	varchar(40)  NOT NULL,
+	PRIMARY KEY(IDUF)
+);
+-----------------------------------------------
+--Cadastrar(inserir) dados em TBEstado
+insert into TBEstado VALUES
+('SP','SÃO PAULO'),
+('RJ','RIO DE JANEIRO'),
+('PR','PARANA');
+-----------------------------------------------
+--Criar Tabela TBCidade
+CREATE TABLE TBCidade 
+(
+	IDCidade	       INT          NOT NULL,
+	NomeCidade	   varchar(50)  NOT NULL,
+	CodUF	           varchar(2)   NOT NULL,
+	FOREIGN KEY(CodUF) REFERENCES TBEstado(IDUF),
+	PRIMARY KEY(IDCidade)
+);
+------------------------------------------------
+--Cadastrar(inserir) dados TBCidade
+insert into TBCidade VALUES
+(01,'SÃO JOSÉ DO RIO PRETO','SP'),
+(02,'BUZIOS','RJ'),
+(03,'CURITIBA','PR');
+------------------------------------------------
+--Criar Tabela TBEditora
+CREATE TABLE TBEditora 
+(
+	IDEditora	          INT NOT NULL,
+	NomeEditora	varchar(50) NOT NULL,
+	Site	varchar(70) NOT NULL,
+	Email	varchar(30) NOT NULL,
+	Telefone	INT NOT NULL,
+	CodCidade	INT NOT NULL,
+	FOREIGN KEY(CodCidade) REFERENCES TBCidade(IDCidade),
+	PRIMARY KEY(IDEditora)
+);
+-------------------------------------------------
+--Criar Tabela TBGenero
+CREATE TABLE TBGenero 
+(
+	IDGenero	    INT         NOT NULL,
+	NomeGenero	varchar(40) NOT NULL,
+	PRIMARY KEY(IDGenero)
+);
+------------------------------------------------
+--Criar Tabela TBLivro
+CREATE TABLE TBLivro 
+( 
+	IDISBN	    INT           NOT NULL,
+	TituloLivro	varchar(70)   NOT NULL,
+	Resumo	    varchar(200)  NOT NULL,
+	Edicao	    INT           NOT NULL,
+	CodGenero	    INT           NOT NULL,
+	CodEditora	INT           NOT NULL,
+	PRIMARY KEY(IDISBN),
+	FOREIGN KEY(CodGenero) REFERENCES TBGenero(IDGenero),
+	FOREIGN KEY(CodEditora) REFERENCES TBEditora(IDEditora),
+);
+---------------------------------------------------
+--Criar Tabela TBAutor
+CREATE TABLE TBAutor
+ (
+	IDAutor	INT NOT NULL,
+	NomeAutor	varchar(50) NOT NULL,
+	Sexo	varchar(1) NOT NULL,
+	DataNascimento	date NOT NULL,
+	Telefone	INT NOT NULL,
+	Email	varchar(30) NOT NULL,
+	CodCidade	INT NOT NULL,
+	FOREIGN KEY(CodCidade) REFERENCES TBCidade(IDCidade),
+	PRIMARY KEY(IDAutor)
+);
+----------------------------------------------------
+--Criar Tabela TBAutoria
+CREATE TABLE TBAutoria 
+(
+	CodAutor	            INT              NOT NULL,
+	CodISBN	            INT              NOT NULL,
+	DataPublicacao	    date             NOT NULL,
+	Nota	                varchar(200)     NOT NULL,
+	PRIMARY KEY(CodAutor),
+	FOREIGN KEY(CodAutor) REFERENCES TBAutor(IDAutor),
+	FOREIGN KEY(CodISBN) REFERENCES TBLivro(IDISBN)
+);
+-------------------------------------------------------
+--Criar Tabela TBExemplar
+CREATE TABLE TBExemplar 
+(
+	IDExemplar	INT NOT NULL,
+	CodISBN	INT NOT NULL,
+	CodStatusExemplar	INT NOT NULL,
+	PRIMARY KEY(IDExemplar),
+	FOREIGN KEY(CodISBN) REFERENCES TBLivro(IDISBN),
+	FOREIGN KEY(CodStatusExemplar) REFERENCES TBStatusExemplar(IDStatus)
+);
+-------------------------------------------------------
+--Criar Tabela TBStatusExemplar
+CREATE TABLE TBStatusExemplar 
+(
+	IDStatus	       INT          NOT NULL,
+	NomeStatus	   varchar(40)  NOT NULL,
+	PRIMARY KEY(IDStatus)
+);
+--------------------------------------------------------
+--Criar Tabela TBEmprestimo
+CREATE TABLE TBEmprestimo 
+(
+	CodUsuario	INT NOT NULL,
+	CodExemplar	INT NOT NULL,
+	CodISBN	INT NOT NULL,
+	DataEmprestimo	DateTime NOT NULL,
+	DataDevolucao	DateTime NOT NULL,
+	PrazoDias	INT NOT NULL,
+	CodFuncionario	INT NOT NULL,
+	FOREIGN KEY(CodUsuario) REFERENCES TBUsuario(IDUsuario),
+	FOREIGN KEY(CodFuncionario) REFERENCES TBFuncionario(IDFuncionario),
+	FOREIGN KEY(CodISBN) REFERENCES TBLivro(IDISBN),
+	FOREIGN KEY(CodExemplar) REFERENCES TBExemplar(IDExemplar),
+	PRIMARY KEY(CodUsuario)
+);
+--------------------------------------------------------
+--Criar Tabela TBDevolucao
+CREATE TABLE TBDevolucao
+ (
+	CodUsuario	INT NOT NULL,
+	CodExemplar	INT NOT NULL,
+	CodISBN	INT NOT NULL,
+	DataDevolucao	DateTime NOT NULL,
+	CodFuncionario	INT NOT NULL,
+	Observacao	varchar(300) NOT NULL,
+	FOREIGN KEY(CodISBN) REFERENCES TBLivro(IDISBN),
+	FOREIGN KEY(CodUsuario) REFERENCES TBUsuario(IDUsuario),
+	FOREIGN KEY(CodFuncionario) REFERENCES TBFuncionario(IDFuncionario),
+	FOREIGN KEY(CodExemplar) REFERENCES TBExemplar(IDExemplar),
+	PRIMARY KEY(CodUsuario)
+);
+--------------------------------------------------------
+--Criar Tabela TBFuncionario
+CREATE TABLE TBFuncionario 
+(
+	IDFuncionario	INT NOT NULL,
+	NomeFuncionario	varchar(50) NOT NULL,
+	Sexo	varchar(1) NOT NULL,
+	Telefone	INT NOT NULL,
+	Email	varchar(30) NOT NULL,
+	CodCidade	INT NOT NULL,
+	FOREIGN KEY(CodCidade) REFERENCES TBCidade(IDCidade),
+	PRIMARY KEY(IDFuncionario)
+);
+---------------------------------------------------------
+--Criar Tabela TBUsuario
+CREATE TABLE TBUsuario 
+(
+	IDUsuario	INT NOT NULL,
+	NomeUsuario	varchar(50) NOT NULL,
+	Sexo	varchar(1) NOT NULL,
+	DataNascimento	Date NOT NULL,
+	Telefone	INT NOT NULL,
+	Endereco	varchar(40) NOT NULL,
+	Bairro	varchar(30) NOT NULL,
+	Email	varchar(30) NOT NULL,
+	CodCidade	INT NOT NULL,
+	CodPerfil	INT NOT NULL,
+	FOREIGN KEY(CodPerfil) REFERENCES TBPerfil(IDPefil),
+	FOREIGN KEY(CodCidade) REFERENCES TBCidade(IDCidade),
+	PRIMARY KEY(IDUsuario)
+);
+----------------------------------------------------------
+--Criar Tabela TBPerfil
+CREATE TABLE TBPerfil
+ (
+	IDPefil	INT NOT NULL,
+	NomePefil	varchar(40) NOT NULL,
+	LimiteLivro	INT NOT NULL,
+	PrazoEmprestimo	INT NOT NULL,
+	PRIMARY KEY(IDPefil)
+);
